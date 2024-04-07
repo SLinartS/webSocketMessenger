@@ -1,9 +1,9 @@
-import Messager from './components/Messager';
+import Messenger from './components/Messenger';
 
 function App() {
   return (
     <div className="App">
-      <Messager></Messager>
+      <Messenger></Messenger>
     </div>
   );
 }

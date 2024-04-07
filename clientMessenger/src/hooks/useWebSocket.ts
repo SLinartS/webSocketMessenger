@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Message } from '../types/Message';
 
 const useWebSocket = () => {
   const [socket, setSocket] = useState<WebSocket>();
-  const [lastMessage, setLastMessage] = useState<string>();
+  const [lastMessage, setLastMessage] = useState<Message[]>();
   const [status, setStatus] = useState<string>();
 
   const sendMessage = useCallback(
@@ -15,7 +16,7 @@ const useWebSocket = () => {
   );
 
   useEffect(() => {
-    setSocket(new WebSocket('ws://localhost:5104/wsconnect'));
+    setSocket(new WebSocket(`ws://${process.env.REACT_APP_API_URL}/wsconnect`));
   }, []);
 
   useEffect(() => {
@@ -32,18 +33,10 @@ const useWebSocket = () => {
   useEffect(() => {
     if (socket) {
       socket.onmessage = (event: MessageEvent) => {
-        setLastMessage(event.data);
+        setLastMessage(JSON.parse(event.data));
       };
 
-      socket.onopen = () => {
-        // console.log('Соединение открыто');
-        // setTimeout(() => {
-        //   socket.send(`{"author": "${Date.now()}", "value": "Test"}`);
-        // }, 3000);
-        // setTimeout(() => {
-        //   socket.send('hello test2');
-        // }, 6000);
-      };
+      socket.onopen = () => {};
 
       socket.onclose = () => {
         console.log('Соединение закрыто');
@@ -56,8 +49,9 @@ const useWebSocket = () => {
       lastMessage,
       sendMessage,
       status,
+      socket,
     }),
-    [lastMessage, sendMessage, status],
+    [lastMessage, sendMessage, socket, status],
   );
 };
 

@@ -1,16 +1,14 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 static class ReadWrite
 {
-  public static async Task AddNewMessage(string value)
+  public static async Task AddNewMessage(Message message)
   {
     var localData = await ReadFile();
 
-    Message? message = JsonSerializer.Deserialize<Message>(value);
-
     if (message is not null)
     {
+      message.id = Guid.NewGuid().ToString();
       localData.Messages.Add(message);
     }
 
@@ -36,10 +34,20 @@ static class ReadWrite
     {
       return localData;
     }
-    throw new Exception("File reading error");
+    Console.WriteLine("File reading error");
+    return new LocalData(new List<Message>());
   }
+
   public async static void WriteFile(LocalData localData)
   {
+    FileStream fs = new("local.json", FileMode.Create);
+    await JsonSerializer.SerializeAsync(fs, localData);
+    fs.Close();
+  }
+
+  public async static void ClearMessages()
+  {
+    var localData = new LocalData(new List<Message>());
     FileStream fs = new("local.json", FileMode.Create);
     await JsonSerializer.SerializeAsync(fs, localData);
     fs.Close();
